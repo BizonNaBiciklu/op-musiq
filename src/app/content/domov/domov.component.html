@@ -15,9 +15,10 @@
 </div>
 
 <div class="row mt-2">
-  <div class="col-sm-4" *ngFor="let pd of showcaseCards">
-    <div class="card" style="width: 18rem;">
-      <img class="card-img-top" src="" alt="{{pd.title}}">
+  <div class="col-sm-4 mt-1" *ngFor="let pd of showcaseCards">
+    <div class="card" style="height: 100%;">
+      <!--<img class="card-img-top" src="" alt="{{pd.title}}">-->
+      <i class="card-img-top {{pd.img}}" style="font-size: 9em; margin-top: 0.1em; text-align: center;"></i>
       <div class="card-body">
         <h5 class="card-title">{{pd.title}}</h5>
         <p class="card-text">{{pd.text}}</p>
