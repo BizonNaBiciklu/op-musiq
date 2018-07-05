@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { AngularFirestore } from 'angularfire2/firestore';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-player',
@@ -7,12 +9,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PlayerComponent implements OnInit {
   public YT: any;
-  public video: any;
+  public video: String = null;
   public player: any;
-  public reframed: boolean = false;
   private component: PlayerComponent = this;
 
-  constructor() { }
+  private playQueue: any[];
+
+  private db: AngularFirestore;
+  private playQueueDatabase: Observable<any[]>;
+  private usersDatabase: Observable<any[]>;
+
+  constructor(database: AngularFirestore) {
+    this.db = database;
+    this.playQueueDatabase = database.collection("songQueue").valueChanges();
+    this.usersDatabase = database.collection("users").valueChanges();
+  }
 
   init(){
     var tag = document.createElement('script');
@@ -23,13 +34,26 @@ export class PlayerComponent implements OnInit {
 
   ngOnInit() {
     this.init();
-    this.video = "y6120QOlsfU";
 
-    let self=this;
+    //Set up song queue handler
+    let queueHandler = this.playQueueDatabase.subscribe(result => {
+      console.info("Received updated song queue:");
+      console.info(result);
+      this.playQueue = result;
+      if (this.video == null){
+        this.changeVideo(result[0].ytid);
+      }
+    });
 
+    //Register user and set up user handler
+    let userHandler = this.usersDatabase.subscribe(array => {
+      console.info("Received updated user database:");
+      console.info(array);
+    });
+
+    const self = this;
     window['onYouTubeIframeAPIReady'] = (e) => {
       self.YT = window['YT'];
-      self.reframed = false;
       self.player = new window['YT'].Player('player', {
         videoId: self.video,
         playerVars: {
@@ -45,16 +69,12 @@ export class PlayerComponent implements OnInit {
         events: {
           'onStateChange': self.onPlayerStateChange.bind(self),
           'onError': self.onPlayerError.bind(self),
-          'onReady': (e) => {
-            console.log("onReady");
-          }
         }
       });
     };
   }
 
   onPlayerStateChange(event) {
-    console.log(event);
     switch (event.data) {
       case window['YT'].PlayerState.PLAYING:
         if (this.cleanTime() == 0) {
@@ -71,6 +91,8 @@ export class PlayerComponent implements OnInit {
         break;
       case window['YT'].PlayerState.ENDED:
         console.log('ended ');
+        this.playQueue.splice(0, 1);
+        this.changeVideo(this.playQueue[0].ytid);
         break;
     };
   };
@@ -81,9 +103,9 @@ export class PlayerComponent implements OnInit {
   };
 
   changeVideo(videoId: String){
-    this.video = String;
-    this.player.videoId = String;
-    this.player.loadVideo();
+    this.video = videoId;
+    this.player.videoId = videoId;
+    this.player.loadVideoById(videoId);
   }
 
   onPlayerError(event) {
