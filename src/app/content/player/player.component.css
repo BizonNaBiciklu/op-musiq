@@ -1,4 +1,77 @@
+<<<<<<< Updated upstream
 .max-width-1024 {
     max-width: 1024px;
     margin: 0 auto;
+=======
+.wrapper {
+    display: flex;
+    width: 100%;
+}
+
+#sidebar {
+    width: 165px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: -1;
+    background: #DF691A;
+    color: rgb(29, 9, 9),
+    transition all 0.3s,
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.wrapper {
+    display: block;
+}
+
+#right-sidebar {
+    min-width: 165px;
+    max-width: 165px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    right: 0;
+    /* top layer */
+    z-index: 9999;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    /* full screen */
+    width: 100vw;
+    height: 100vh;
+    /* transparent black */
+    /* middle layer, i.e. appears below the sidebar
+    background: rgba(0, 0, 0, 0.7);r */
+    z-index: 998;
+    opacity: 0;
+    /* animate the transition */
+    transition: all 0.5s ease-in-out;
+}
+/* display .overlay when it has the .active class */
+.overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+#dismiss {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    /* top right corner of the sidebar */
+    top: 10px;
+    right: 10px;
+>>>>>>> Stashed changes
 }
