@@ -11,9 +11,14 @@ export class PlayerComponent implements OnInit {
   public YT: any;
   public video: String = null;
   public player: any;
+
+  public localUser: any;
+  private localUserID: String;
+
   private component: PlayerComponent = this;
 
-  private playQueue: any[];
+  public playQueue: any[];
+  public presentUsers: any[]; 
 
   private db: AngularFirestore;
   private playQueueDatabase: Observable<any[]>;
@@ -35,30 +40,44 @@ export class PlayerComponent implements OnInit {
   ngOnInit() {
     this.init();
 
-    //Set up song queue handler
-    let queueHandler = this.playQueueDatabase.subscribe(result => {
-      console.info("Received updated song queue:");
-      console.info(result);
-      this.playQueue = result;
-      if (this.video == null){
-        this.changeVideo(result[0].ytid);
-      }
-    });
-
-    //Register user and set up user handler
-    let userHandler = this.usersDatabase.subscribe(array => {
-      console.info("Received updated user database:");
-      console.info(array);
-    });
-
+    //Set up callback for when YT API loads
     const self = this;
     window['onYouTubeIframeAPIReady'] = (e) => {
+      //Set up song queue handler
+      let queueHandler = this.playQueueDatabase.subscribe(result => {
+        console.info("Received updated song queue:");
+        console.info(result);
+        this.playQueue = result;
+        if (this.video == null){
+          this.changeVideo(result[0].ytid);
+        }
+      });
+
+      //Register user and set up user handler
+      let userHandler = this.usersDatabase.subscribe(array => {
+        console.info("Received updated user database:");
+        console.info(array);
+        this.presentUsers = array;
+        if (this.localUser == undefined){
+          console.warn("Local user not present");
+          this.localUser = {
+            currentlyPlaying: this.playQueue[0].ytid,
+            lastReport: new Date(),
+            timestamp: "0:00",
+            username: "Unnamed Squid Warrior"
+          }
+          this.db.collection("users").add(this.localUser).then(res => {
+            this.localUserID = res.id;
+          });
+        }
+      });
+
       self.YT = window['YT'];
       self.player = new window['YT'].Player('player', {
         videoId: self.video,
         playerVars: {
           "autoplay": 1,
-          "controls": 0,
+          //"controls": 0,
           "disablekb": 1,
           "enablejsapi": 1,
           "fs": 0,
@@ -71,6 +90,12 @@ export class PlayerComponent implements OnInit {
           'onError': self.onPlayerError.bind(self),
         }
       });
+    };
+
+    window['navigatingFrom'] = (data) => {
+      alert("deleting your mom, please wait");
+      //Remove user
+      this.db.doc("users/" + this.localUserID).delete();
     };
   }
 
@@ -90,9 +115,10 @@ export class PlayerComponent implements OnInit {
         };
         break;
       case window['YT'].PlayerState.ENDED:
-        console.log('ended ');
+        console.debug("Video ended, loading next one.");
         this.playQueue.splice(0, 1);
         this.changeVideo(this.playQueue[0].ytid);
+        this.localUser.currentlyPlaying = this.playQueue[0].ytid;
         break;
     };
   };
@@ -120,4 +146,3 @@ export class PlayerComponent implements OnInit {
     };
   };
 }
-
