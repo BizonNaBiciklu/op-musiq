@@ -1,23 +1,39 @@
-<div class="row">
+<!--<div class="row">
   <div class="col-sm m-3">
     <h1>OP Musiq</h1>
   </div>
-</div>
+</div>-->
 
 <div class="row">
   <div class="col-sm">
-      <div class="card">
+      <!--<div class="card">
         <div class="card-body">
-          Just another music player. Supports more people listening at the same time.
+          <p>
+            Just another music player. Supports more people listening at the same time, so it's perfect for listening
+            during a gaming session or just when hanging out with friends in Discord. You can also join public rooms
+            and chat with people there.
+            <br>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin porttitor sit amet magna nec cursus. Sed pharetra, nunc in sodales gravida, leo metus ullamcorper tortor, vitae volutpat orci lectus at metus. Nullam facilisis nisl nec enim pharetra vehicula. Curabitur eget augue fermentum, luctus nulla eu, maximus dolor. Suspendisse ante leo.
+          </p>
         </div>
+      </div>-->
+      <div class="jumbotron mt-4">
+        <h1 class="display-4">OP Musiq</h1>
+        <p class="lead">A place for people to listen to music and chillax.</p>
+        <hr class="my-2">
+        <p>
+          We support lot of people listening at the same time, so it's perfect for listening to
+          during a gaming session or just when hanging out with friends in Discord. You can also join public rooms
+          and chat with people there.
+        </p>
+        <a class="btn btn-primary btn-lg" href="player" role="button">Tune in</a>
       </div>
   </div>
 </div>
 
-<div class="row mt-2">
-  <div class="col-sm-4 mt-1" *ngFor="let pd of showcaseCards">
+<div class="row">
+  <div class="col-sm-4" *ngFor="let pd of showcaseCards">
     <div class="card" style="height: 100%;">
-      <!--<img class="card-img-top" src="" alt="{{pd.title}}">-->
       <i class="card-img-top {{pd.img}}" style="font-size: 9em; margin-top: 0.1em; text-align: center;"></i>
       <div class="card-body">
         <h5 class="card-title">{{pd.title}}</h5>
