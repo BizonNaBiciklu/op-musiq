@@ -12,6 +12,7 @@ export class PlayerComponent implements OnInit {
   public video: String = null;
   public player: any;
   private component: PlayerComponent = this;
+
   private playQueue: any[];
 
   private db: AngularFirestore;
@@ -35,13 +36,19 @@ export class PlayerComponent implements OnInit {
     this.init();
 
     //Set up song queue handler
-    let handler = this.playQueueDatabase.subscribe(result => {
+    let queueHandler = this.playQueueDatabase.subscribe(result => {
       console.info("Received updated song queue:");
       console.info(result);
       this.playQueue = result;
       if (this.video == null){
         this.changeVideo(result[0].ytid);
       }
+    });
+
+    //Register user and set up user handler
+    let userHandler = this.usersDatabase.subscribe(array => {
+      console.info("Received updated user database:");
+      console.info(array);
     });
 
     const self = this;
@@ -84,6 +91,8 @@ export class PlayerComponent implements OnInit {
         break;
       case window['YT'].PlayerState.ENDED:
         console.log('ended ');
+        this.playQueue.splice(0, 1);
+        this.changeVideo(this.playQueue[0].ytid);
         break;
     };
   };
