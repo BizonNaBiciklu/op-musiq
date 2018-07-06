@@ -1,71 +1,51 @@
 <div class="row">
   <div class="col-sm-1">
-    One of three columns
+   
   </div>
   <div class="col-sm-8">
       <div class="max-width-1024">
         <div class="embed-responsive embed-responsive-16by9" id="player"></div>
       </div>
   </div>
-  <div class="col-sm-3">
-    One of three columns
+  
+  <div class="card" style="width: 18rem;">
+        <div class="row">
+                <div class="col-sm-9">
+    <div class="card-body">
+      <h5 class="card-title">Card title</h5>
+      <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+      <a href="#" class="card-link">Card link</a>
+      <a href="#" class="card-link">Another link</a>
+    </div>
+    </div>
+    </div>
   </div>
 
 <div class="wrapper">
     <!-- Sidebar -->
     <nav id="sidebar" style="margin-top: 3em;">
         <ul class="list-unstyled components">
-            <h3>Chat</h3>
-            <li class="active">
-                <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Home</a>
-                <ul class="collapse list-unstyled" id="homeSubmenu">
-                    <li>
-                        <p href="#">muska</p>
-                    </li>
-                    <li>
-                        <a href="#">Home 2</a>
-                    </li>
-                    <li>
-                        <a href="#">Home 3</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#">About</a>
-            </li>
+            <h3></h3>
+           
             <form>
                 <div class="form-group">
                     <label for="username">Enter your name here:</label>
                     <input type="name" class="form-control" id="username" aria-describedby="nameHelp" placeholder="Name" name="username" [(ngModel)]="localUser.username">
                     <small id="emailHelp" class="form-text text-muted"></small>
                 </div>
-                <div class="form-group">
-                    <label for="exampleInputPassword1">Enter your link here:</label>
-                    <input type="url" class="form-control" id="exampleInputPassword1" placeholder="https://">
-                </div>
                 
-                <button type="submit" class="btn btn-primary">Submit</button>
             </form>
-            <li>
-                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Pages</a>
-                <ul class="collapse list-unstyled" id="pageSubmenu">
-                    <li>
-                        <a href="#">Page 1</a>
-                    </li>
-                    <li>
-                        <a href="#">Page 2</a>
-                    </li>
-                    <li>
-                        <a href="#">Page 3</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#">Portfolio</a>
-            </li>
-            <li>
-                <a href="#">Contact</a>
-            </li>
+
+<form><div class="form-group">
+    <label for="exampleInputPassword1">Enter your link here:</label>
+    <input type="url" class="form-control" id="exampleInputPassword1" placeholder="https://">
+</div>
+
+<button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+            
         </ul>
 
     </nav>
@@ -73,7 +53,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
 <div class="wrapper">
     <!-- Sidebar -->
-    <nav id="right-sidebar">
+    <nav id="right-sidebar" style="margin-top: 3em;">
 
         <div id="dismiss">
             <i class="fas fa-arrow-right"></i>
@@ -84,7 +64,7 @@
         </div>
 
         <ul class="list-unstyled components">
-            <p>Dummy Heading</p>
+            <h3>Chat</h3>
             <li class="active">
                 <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Home</a>
                 <ul class="collapse list-unstyled" id="homeSubmenu">
@@ -102,32 +82,13 @@
 
             <form>
                 <div class="form-group">
-                    <label for="exampleFormControlTextarea1">Example textarea</label>
+                    <label for="exampleFormControlTextarea1"></label>
                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="20"></textarea>
                   </div>
             </form>
 
-            <li>
-                <a href="#">About</a>
-                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">Pages</a>
-                <ul class="collapse list-unstyled" id="pageSubmenu">
-                    <li>
-                        <a href="#">Page 1</a>
-                    </li>
-                    <li>
-                        <a href="#">Page 2</a>
-                    </li>
-                    <li>
-                        <a href="#">Page 3</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#">Portfolio</a>
-            </li>
-            <li>
-                <a href="#">Contact</a>
-            </li>
+            
+            
         </ul>
     </nav>
 </div>

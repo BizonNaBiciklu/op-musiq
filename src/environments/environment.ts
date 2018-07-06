@@ -5,10 +5,12 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyBtMpkRN_PjANvCDUkG2Ik8F0ui6qghwQ0",
+    //apiKey: "AIzaSyBtMpkRN_PjANvCDUkG2Ik8F0ui6qghwQ0",
+    apiKey: "AIzaSyBtMpkRN_PjANvCDUkG2Ik8F0ui6qghwQb",
     authDomain: "col-music-test.firebaseapp.com",
     databaseURL: "https://col-music-test.firebaseio.com",
-    projectId: "col-music-test",
+    //projectId: "col-music-test",
+    projectId: "col",
     storageBucket: "col-music-test.appspot.com",
     messagingSenderId: "90562137986"
   }

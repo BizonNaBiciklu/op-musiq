@@ -4,13 +4,13 @@
 }
 
 #sidebar {
-    width: 165px;
+    width: 259px;
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
     z-index: 9999;
-    background: #DF691A;
+    background: rgb(52,75,97);
     color: rgb(29, 9, 9),
     transition all 0.3s,
 }
@@ -19,16 +19,24 @@
     display: block;
 }
 
+.form-group{
+   
+        vertical-align: middle;
+        resize: none; 
+        overflow: auto; 
+        -ms-overflow-style: none; 
+        background-color: rgb(70,101,130);
+    }
+
 #right-sidebar {
-    min-width: 250px;
-    max-width: 250px;
+    width: 350px;
     height: 100vh;
     position: fixed;
     top: 0;
     right: 0;
     /* top layer */
     z-index: 9999;
-    background: #DF691A;
+    background: rgb(52,75,97);
 }
 
 .overlay {
