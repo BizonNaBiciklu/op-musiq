@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": "dist/poletna2018-basic-template",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
