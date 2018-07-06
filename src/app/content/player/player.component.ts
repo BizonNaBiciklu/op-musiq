@@ -14,7 +14,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
   public video: String = null;
   public player: any;
 
-  public localUser: any;
+  public localUser: any = {};
+  public ytLink: String;
 
   private static component: PlayerComponent;
 
@@ -22,8 +23,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
   public presentUsers: any[]; 
 
   private db: AngularFirestore;
-  private playQueueDatabase: Observable<any[]>;
-  private usersDatabase: Observable<any[]>;
+  playQueueDatabase: Observable<any[]>;
+  usersDatabase: Observable<any[]>;
 
   constructor(database: AngularFirestore) {
     PlayerComponent.component = this;
@@ -45,35 +46,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
     //Set up callback for when YT API loads
     const self = this;
     window['onYouTubeIframeAPIReady'] = (e) => {
-      //Set up song queue handler
-      let queueHandler = self.playQueueDatabase.subscribe(result => {
-        console.info("Received updated song queue:");
-        console.info(result);
-        self.playQueue = result;
-        if (self.video == null){
-          self.changeVideo(result[0].ytid);
-        }
-      });
-
-      //Register user and set up user handler
-      let userHandler = self.usersDatabase.subscribe(array => {
-        console.info("Received updated user database:");
-        console.info(array);
-        self.presentUsers = array;
-        if (self.localUser == undefined){
-          console.warn("Local user not present");
-          self.localUser = {
-            firebaseID: self.db.createId(),
-            currentlyPlaying: self.playQueue[0].ytid,
-            lastReport: new Date(),
-            timestamp: 0,
-            username: "Unnamed Squid Warrior"
-          }
-          self.db.collection("users").doc(self.localUser.firebaseID).set(self.localUser);
-          setInterval(self.updateDatabaseTimestamp, PlayerComponent.FIREBASE_REPORT_INTERVAL);
-        }
-      });
-
       self.YT = window['YT'];
       self.player = new window['YT'].Player('player', {
         videoId: self.video,
@@ -90,6 +62,39 @@ export class PlayerComponent implements OnInit, OnDestroy {
         events: {
           'onStateChange': self.onPlayerStateChange.bind(self),
           'onError': self.onPlayerError.bind(self),
+        }
+      });
+
+      //Set up song queue handler
+      let queueHandler = self.playQueueDatabase.subscribe(result => {
+        console.info("Received updated song queue:");
+        console.info(result);
+        self.playQueue = result;
+        if (self.video == null){
+          self.changeVideo(result[0].ytid);
+        }
+      });
+
+      //Register user and set up user handler
+      let userHandler = self.usersDatabase.subscribe(array => {
+        console.info("Received updated user database:");
+        console.info(array);
+        self.presentUsers = array;
+        if (self.localUser.firebaseID == undefined){
+          console.warn("Local user not present");
+          self.localUser.firebaseID = self.db.createId();
+          self.localUser.currentlyPlaying = self.playQueue[0].ytid;
+          self.localUser.lastReport = new Date();
+          self.localUser.timestamp = 0;
+          self.localUser.username = "Unnamed Squid";
+          self.db.collection("users").doc(self.localUser.firebaseID).set(self.localUser);
+          setInterval(self.updateDatabaseTimestamp, PlayerComponent.FIREBASE_REPORT_INTERVAL);
+
+          //Seek to the average time
+          let total = 0;
+          self.presentUsers.forEach((element, index, arr) => total += element.timestamp);
+          total /= self.presentUsers.length;
+          self.player.seekTo(total, true);
         }
       });
     };
@@ -118,6 +123,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
     PlayerComponent.component.video = videoId;
     PlayerComponent.component.player.videoId = videoId;
     PlayerComponent.component.player.loadVideoById(videoId);
+  }
+
+  addSongToQueue(){
+    console.log("Adding song");
+    const song = {
+      title: "Unnamed Song",
+      ytid: PlayerComponent.component.ytLink.replace("https://www.youtube.com/watch?v=", "")
+    }
+    PlayerComponent.component.db.collection("songQueue").add(song);
+    PlayerComponent.component.ytLink = new String("");
   }
 
   updateUserOnDB(){
