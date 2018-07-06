@@ -13,13 +13,8 @@
 
 <div class="wrapper">
     <!-- Sidebar -->
-    <nav id="sidebar">
-        <div class="sidebar-header">
-            <h3></h3>
-        </div>
-
+    <nav id="sidebar" style="margin-top: 3em;">
         <ul class="list-unstyled components">
-                <font color="white">This is some text!</font>
             <h3>Chat</h3>
             <li class="active">
                 <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Home</a>
@@ -39,18 +34,18 @@
                 <a href="#">About</a>
             </li>
             <form>
-                    <div class="form-group">
-                      <label for="exampleInputname1">Enter your name here:</label>
-                      <input type="name" class="form-control" id="exampleInputname" aria-describedby="nameHelp" placeholder="Name">
-                      <small id="emailHelp" class="form-text text-muted"></small>
-                    </div>
-                    <div class="form-group">
-                      <label for="exampleInputPassword1">Enter your link here:</label>
-                      <input type="password" class="form-control" id="exampleInputPassword1" placeholder="https://">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                  </form>
+                <div class="form-group">
+                    <label for="username">Enter your name here:</label>
+                    <input type="name" class="form-control" id="username" aria-describedby="nameHelp" placeholder="Name" name="username" [(ngModel)]="localUser.username">
+                    <small id="emailHelp" class="form-text text-muted"></small>
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Enter your link here:</label>
+                    <input type="url" class="form-control" id="exampleInputPassword1" placeholder="https://">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
             <li>
                 <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Pages</a>
                 <ul class="collapse list-unstyled" id="pageSubmenu">
@@ -74,27 +69,8 @@
         </ul>
 
     </nav>
-    
-    <!-- Page Content -->
-    <div id="content">
-
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-
-                
-            </div>
-        </nav>
-    </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
-
-
-
-
-
-
-
-
 <div class="wrapper">
     <!-- Sidebar -->
     <nav id="right-sidebar">
@@ -146,16 +122,4 @@
             </li>
         </ul>
     </nav>
-
-    <!-- Page Content -->
-    <div id="content">
-
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-
-            </div>
-        </nav>
-    </div>
-    <!-- Dark Overlay element -->
-    <div class="overlay"></div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Observable } from 'rxjs';
 
@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.css']
 })
-export class PlayerComponent implements OnInit {
+export class PlayerComponent implements OnInit, OnDestroy {
   public YT: any;
   public video: String = null;
   public player: any;
@@ -15,7 +15,7 @@ export class PlayerComponent implements OnInit {
   public localUser: any;
   private localUserID: String;
 
-  private component: PlayerComponent = this;
+  private static component: PlayerComponent;
 
   public playQueue: any[];
   public presentUsers: any[]; 
@@ -25,6 +25,7 @@ export class PlayerComponent implements OnInit {
   private usersDatabase: Observable<any[]>;
 
   constructor(database: AngularFirestore) {
+    PlayerComponent.component = this;
     this.db = database;
     this.playQueueDatabase = database.collection("songQueue").valueChanges();
     this.usersDatabase = database.collection("users").valueChanges();
@@ -44,31 +45,32 @@ export class PlayerComponent implements OnInit {
     const self = this;
     window['onYouTubeIframeAPIReady'] = (e) => {
       //Set up song queue handler
-      let queueHandler = this.playQueueDatabase.subscribe(result => {
+      let queueHandler = self.playQueueDatabase.subscribe(result => {
         console.info("Received updated song queue:");
         console.info(result);
-        this.playQueue = result;
-        if (this.video == null){
-          this.changeVideo(result[0].ytid);
+        self.playQueue = result;
+        if (self.video == null){
+          self.changeVideo(result[0].ytid);
         }
       });
 
       //Register user and set up user handler
-      let userHandler = this.usersDatabase.subscribe(array => {
+      let userHandler = self.usersDatabase.subscribe(array => {
         console.info("Received updated user database:");
         console.info(array);
-        this.presentUsers = array;
-        if (this.localUser == undefined){
+        self.presentUsers = array;
+        if (self.localUser == undefined){
           console.warn("Local user not present");
-          this.localUser = {
-            currentlyPlaying: this.playQueue[0].ytid,
+          self.localUser = {
+            currentlyPlaying: self.playQueue[0].ytid,
             lastReport: new Date(),
-            timestamp: "0:00",
+            timestamp: 0,
             username: "Unnamed Squid Warrior"
           }
-          this.db.collection("users").add(this.localUser).then(res => {
-            this.localUserID = res.id;
+          self.db.collection("users").add(self.localUser).then(res => {
+            self.localUserID = res.id;
           });
+          setInterval(self.updateDatabaseTimestamp, 5000);
         }
       });
 
@@ -91,53 +93,42 @@ export class PlayerComponent implements OnInit {
         }
       });
     };
+  }
 
-    window['navigatingFrom'] = (data) => {
-      alert("deleting your mom, please wait");
-      //Remove user
-      this.db.doc("users/" + this.localUserID).delete();
-    };
+  ngOnDestroy(){
+    //Remove user
+    this.db.doc("users/" + this.localUserID).delete();
   }
 
   onPlayerStateChange(event) {
     switch (event.data) {
-      case window['YT'].PlayerState.PLAYING:
-        if (this.cleanTime() == 0) {
-          console.log('started ' + this.cleanTime());
-        } else {
-          console.log('playing ' + this.cleanTime());
-        };
-        break;
       case window['YT'].PlayerState.PAUSED:
-        this.component.player.playVideo();
-        if (this.player.getDuration() - this.player.getCurrentTime() != 0) {
-          console.log('paused' + ' @ ' + this.cleanTime());
-        };
+        PlayerComponent.component.player.playVideo();
         break;
       case window['YT'].PlayerState.ENDED:
         console.debug("Video ended, loading next one.");
-        this.playQueue.splice(0, 1);
-        this.changeVideo(this.playQueue[0].ytid);
-        this.localUser.currentlyPlaying = this.playQueue[0].ytid;
+        PlayerComponent.component.playQueue.splice(0, 1);
+        PlayerComponent.component.changeVideo(PlayerComponent.component.playQueue[0].ytid);
+        PlayerComponent.component.localUser.currentlyPlaying = PlayerComponent.component.playQueue[0].ytid;
         break;
     };
   };
 
-  //utility
-  cleanTime() {
-    return Math.round(this.player.getCurrentTime())
-  };
-
   changeVideo(videoId: String){
-    this.video = videoId;
-    this.player.videoId = videoId;
-    this.player.loadVideoById(videoId);
+    PlayerComponent.component.video = videoId;
+    PlayerComponent.component.player.videoId = videoId;
+    PlayerComponent.component.player.loadVideoById(videoId);
+  }
+
+  updateDatabaseTimestamp(){
+    PlayerComponent.component.localUser.timestamp = Math.round(PlayerComponent.component.player.getCurrentTime());
+    PlayerComponent.component.db.doc("users/" + PlayerComponent.component.localUserID).update(PlayerComponent.component.localUser);
   }
 
   onPlayerError(event) {
     switch (event.data) {
       case 2:
-        console.log('' + this.video)
+        console.log('' + PlayerComponent.component.video)
         break;
       case 100:
         break;
