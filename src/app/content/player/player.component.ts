@@ -46,6 +46,25 @@ export class PlayerComponent implements OnInit, OnDestroy {
     //Set up callback for when YT API loads
     const self = this;
     window['onYouTubeIframeAPIReady'] = (e) => {
+      self.YT = window['YT'];
+      self.player = new window['YT'].Player('player', {
+        videoId: self.video,
+        playerVars: {
+          "autoplay": 1,
+          //"controls": 0,
+          "disablekb": 1,
+          "enablejsapi": 1,
+          "fs": 0,
+          "iv_load_policy": 3,
+          "showinfo": 0,
+          "rel": 0,
+        },
+        events: {
+          'onStateChange': self.onPlayerStateChange.bind(self),
+          'onError': self.onPlayerError.bind(self),
+        }
+      });
+
       //Set up song queue handler
       let queueHandler = self.playQueueDatabase.subscribe(result => {
         console.info("Received updated song queue:");
@@ -70,25 +89,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
           self.localUser.username = "Unnamed Squid";
           self.db.collection("users").doc(self.localUser.firebaseID).set(self.localUser);
           setInterval(self.updateDatabaseTimestamp, PlayerComponent.FIREBASE_REPORT_INTERVAL);
-        }
-      });
 
-      self.YT = window['YT'];
-      self.player = new window['YT'].Player('player', {
-        videoId: self.video,
-        playerVars: {
-          "autoplay": 1,
-          //"controls": 0,
-          "disablekb": 1,
-          "enablejsapi": 1,
-          "fs": 0,
-          "iv_load_policy": 3,
-          "showinfo": 0,
-          "rel": 0,
-        },
-        events: {
-          'onStateChange': self.onPlayerStateChange.bind(self),
-          'onError': self.onPlayerError.bind(self),
+          //Seek to the average time
+          let total = 0;
+          self.presentUsers.forEach((element, index, arr) => total += element.timestamp);
+          total /= self.presentUsers.length;
+          self.player.seekTo(total, true);
         }
       });
     };
