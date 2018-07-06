@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore } from 'angularfire2/firestore';
+import { AngularFirestore, AngularFirestoreDocument } from 'angularfire2/firestore';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -8,12 +8,13 @@ import { Observable } from 'rxjs';
   styleUrls: ['./player.component.css']
 })
 export class PlayerComponent implements OnInit, OnDestroy {
+  public static FIREBASE_REPORT_INTERVAL = 15000;
+
   public YT: any;
   public video: String = null;
   public player: any;
 
   public localUser: any;
-  private localUserID: String;
 
   private static component: PlayerComponent;
 
@@ -62,15 +63,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
         if (self.localUser == undefined){
           console.warn("Local user not present");
           self.localUser = {
+            firebaseID: self.db.createId(),
             currentlyPlaying: self.playQueue[0].ytid,
             lastReport: new Date(),
             timestamp: 0,
             username: "Unnamed Squid Warrior"
           }
-          self.db.collection("users").add(self.localUser).then(res => {
-            self.localUserID = res.id;
-          });
-          setInterval(self.updateDatabaseTimestamp, 5000);
+          self.db.collection("users").doc(self.localUser.firebaseID).set(self.localUser);
+          setInterval(self.updateDatabaseTimestamp, PlayerComponent.FIREBASE_REPORT_INTERVAL);
         }
       });
 
@@ -97,7 +97,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(){
     //Remove user
-    this.db.doc("users/" + this.localUserID).delete();
+    this.db.doc("users/" + this.localUser.firebaseID).delete();
   }
 
   onPlayerStateChange(event) {
@@ -120,9 +120,15 @@ export class PlayerComponent implements OnInit, OnDestroy {
     PlayerComponent.component.player.loadVideoById(videoId);
   }
 
+  updateUserOnDB(){
+    PlayerComponent.component.localUser.lastReport = new Date();
+    PlayerComponent.component.db.doc("users/" + PlayerComponent.component.localUser.firebaseID).update(PlayerComponent.component.localUser);
+    PlayerComponent.component.cleanupInactiveUsers();
+  }
+
   updateDatabaseTimestamp(){
     PlayerComponent.component.localUser.timestamp = Math.round(PlayerComponent.component.player.getCurrentTime());
-    PlayerComponent.component.db.doc("users/" + PlayerComponent.component.localUserID).update(PlayerComponent.component.localUser);
+    PlayerComponent.component.updateUserOnDB();
   }
 
   onPlayerError(event) {
@@ -136,4 +142,15 @@ export class PlayerComponent implements OnInit, OnDestroy {
         break;
     };
   };
+
+
+  //Stuff that really should have been on a dedicated server
+  cleanupInactiveUsers(){
+    PlayerComponent.component.presentUsers.forEach((value, index, arr) => {
+      if (value.lastReport.seconds + PlayerComponent.FIREBASE_REPORT_INTERVAL / 500 < Date.now() / 1000){
+        let doc: AngularFirestoreDocument = this.db.doc("users/" + value.firebaseID);
+        doc.delete();
+      }
+    }, PlayerComponent.component);
+  }
 }
