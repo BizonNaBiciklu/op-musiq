@@ -91,10 +91,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
           setInterval(self.updateDatabaseTimestamp, PlayerComponent.FIREBASE_REPORT_INTERVAL);
 
           //Seek to the average time
-          let total = 0;
-          self.presentUsers.forEach((element, index, arr) => total += element.timestamp);
-          total /= self.presentUsers.length;
+          let total = 0, count = 0;
+          self.presentUsers.forEach((element, index, arr) => {
+            if (element.currentlyPlaying == self.localUser.currentlyPlaying){
+              total += element.timestamp;
+              count++;
+            }
+          });
+          total /= count;
           self.player.seekTo(total, true);
+          self.updateDatabaseTimestamp();
         }
       });
     };
@@ -112,9 +118,24 @@ export class PlayerComponent implements OnInit, OnDestroy {
         break;
       case window['YT'].PlayerState.ENDED:
         console.debug("Video ended, loading next one.");
+        const currentId = PlayerComponent.component.playQueue[0].ytid;
+        const currentFirebaseId = PlayerComponent.component.playQueue[0].firebaseID;
+        const nextId = PlayerComponent.component.playQueue[1].ytid;
+        let amountStillPlaying = 0;
+        PlayerComponent.component.presentUsers.forEach((element, index, arr) => {
+          if (element.currentlyPlaying == currentId)
+            amountStillPlaying ++;
+          else if(element.currentlyPlaying != currentId && element.currentlyPlaying != nextId)
+            console.warn("What the fuck is this guy playing? " + element.currentlyPlaying);
+        }, PlayerComponent.component);
         PlayerComponent.component.playQueue.splice(0, 1);
         PlayerComponent.component.changeVideo(PlayerComponent.component.playQueue[0].ytid);
         PlayerComponent.component.localUser.currentlyPlaying = PlayerComponent.component.playQueue[0].ytid;
+        if (amountStillPlaying <= 1){
+          console.log("Deleting current song from queue");
+          PlayerComponent.component.db.collection("songQueue").doc(currentFirebaseId).delete();
+        }
+        PlayerComponent.component.updateDatabaseTimestamp();
         break;
     };
   };
@@ -128,10 +149,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
   addSongToQueue(){
     console.log("Adding song");
     const song = {
+      firebaseID: PlayerComponent.component.db.createId(),
       title: "Unnamed Song",
       ytid: PlayerComponent.component.ytLink.replace("https://www.youtube.com/watch?v=", "")
     }
-    PlayerComponent.component.db.collection("songQueue").add(song);
+    PlayerComponent.component.db.collection("songQueue").doc(song.firebaseID).set(song);
     PlayerComponent.component.ytLink = new String("");
   }
 
